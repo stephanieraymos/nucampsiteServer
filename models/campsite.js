@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 //This is making a shorthand to the mongoose.Schema function so we can refer to it as Schema:
 const Schema = mongoose.Schema;
 
+require('mongoose-currency').loadType(mongoose) //This will load the new currency type into mongoose so it's available to schemas
+
 const commentSchema = new Schema({
   //FIRST ARGUMENT:
   rating: {
