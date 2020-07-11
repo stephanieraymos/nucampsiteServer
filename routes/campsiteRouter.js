@@ -7,22 +7,22 @@ const campsiteRouter = express.Router();
 campsiteRouter.use(bodyParser.json());
 
 campsiteRouter.route('/')
-.get((req, res, next) => {
+.get((req, res, next) => { //next is for error handling
     Campsite.find()
     .then(campsites => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(campsites);
+        res.json(campsites); //Sending json data to the client. Automatically closes the response stream afterward; so no res.end is needed
     })
-    .catch(err => next(err));
+    .catch(err => next(err)); //next(err) is passing off the error to the overall error handler so express can handle it.
 })
 .post((req, res, next) => {
-    Campsite.create(req.body)
+    Campsite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
     .then(campsite => {
-        console.log('Campsite Created ', campsite);
+        console.log('Campsite Created ', campsite); //Second argument; campsite: will log info about the campsite to the console.
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(campsite);
+        res.json(campsite); //Sends info about posted document to the client. (No res.end needed)
     })
     .catch(err => next(err));
 })
@@ -31,7 +31,7 @@ campsiteRouter.route('/')
     res.end('PUT operation not supported on /campsites');
 })
 .delete((req, res, next) => {
-    Campsite.deleteMany()
+    Campsite.deleteMany() //Every document in campsite collection will be deleted
     .then(response => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
