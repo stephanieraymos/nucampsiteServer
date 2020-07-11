@@ -77,26 +77,27 @@ campsiteRouter.route('/:campsiteId')
 
 campsiteRouter.route('/:campsiteId/comments')
 .get((req, res, next) => {
-    Campsite.findById(req.params.campsiteId)
+    Campsite.findById(req.params.campsiteId)//client is looking for a single campsite's comments; not all
     .then(campsite => {
-        if (campsite) {
+        if (campsite) { //making sure non-null/truthy value was returned for the campsite document
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(campsite.comments);
+            res.json(campsite.comments); //accessing and returning the comments for this campsite formatted in json
         } else {
-            err = new Error(`Campsite ${req.params.campsiteId} not found`);
+            err = new Error(`Campsite ${req.params.campsiteId} not found`); 
             err.status = 404;
-            return next(err);
+            return next(err); //Passing off error to express error handling mechanism 
         }
     })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post((req, res, next) => { //This post request will be adding a new comment to the list of comments for a particular campsite
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite) {
-            campsite.comments.push(req.body);
-            campsite.save()
+        if (campsite) { //making sure non-null/truthy value was returned for the campsite document
+            campsite.comments.push(req.body); //pushing new comment into the comments array
+            //This has only saved the comments array that's in the applications memory; not the comments sub document in the mongodb database
+            campsite.save() //to save this change to the mongodb database (lowercase because it's not static: it's being performed on this particular campsite instance; the document itself)
             .then(campsite => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -113,13 +114,13 @@ campsiteRouter.route('/:campsiteId/comments')
 })
 .put((req, res) => {
     res.statusCode = 403;
-    res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`);
+    res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`); //echoing back to the client: the path that they tried to reach
 })
 .delete((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
-            for (let i = (campsite.comments.length-1); i >= 0; i--) {
+            for (let i = (campsite.comments.length-1); i >= 0; i--) { //Looping through and removing every comment one at a time by its id
                 campsite.comments.id(campsite.comments[i]._id).remove();
             }
             campsite.save()
