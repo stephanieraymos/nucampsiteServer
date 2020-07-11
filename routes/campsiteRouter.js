@@ -119,7 +119,7 @@ campsiteRouter.route('/:campsiteId/comments')
 .delete((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite) {
+        if (campsite) { //making sure non-null/truthy value was returned for the campsite document
             for (let i = (campsite.comments.length-1); i >= 0; i--) { //Looping through and removing every comment one at a time by its id
                 campsite.comments.id(campsite.comments[i]._id).remove();
             }
@@ -143,15 +143,15 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
 .get((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
+        if (campsite && campsite.comments.id(req.params.commentId)) { //making sure non-null/truthy value was returned for the campsite document & for the comment
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(campsite.comments.id(req.params.commentId));
-        } else if (!campsite) {
+        } else if (!campsite) { //if campsite was not found
             err = new Error(`Campsite ${req.params.campsiteId} not found`);
             err.status = 404;
             return next(err);
-        } else {
+        } else { //if comment was not found
             err = new Error(`Comment ${req.params.commentId} not found`);
             err.status = 404;
             return next(err);
@@ -163,18 +163,18 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     res.statusCode = 403;
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`);
 })
-.put((req, res, next) => {
+.put((req, res, next) => { //this put request will update the text and rating fields of an existing comment
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
-            if (req.body.rating) {
-                campsite.comments.id(req.params.commentId).rating = req.body.rating;
+        if (campsite && campsite.comments.id(req.params.commentId)) { //making sure non-null/truthy value was returned for the campsite document & for the comment
+            if (req.body.rating) { //if a new comment rating has been passed in
+                campsite.comments.id(req.params.commentId).rating = req.body.rating; //then we'll set the rating for the specified comment with that new rating
             }
-            if (req.body.text) {
-                campsite.comments.id(req.params.commentId).text = req.body.text;
+            if (req.body.text) { //if a new comment text has been passed in
+                campsite.comments.id(req.params.commentId).text = req.body.text; //then we'll set the text for the specified comment with that new text
             }
-            campsite.save()
-            .then(campsite => {
+            campsite.save() //save updates to mongodb server
+            .then(campsite => { //if save operation succeeds
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(campsite);
@@ -196,7 +196,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
-            campsite.comments.id(req.params.commentId).remove();
+            campsite.comments.id(req.params.commentId).remove(); //removing comment
             campsite.save()
             .then(campsite => {
                 res.statusCode = 200;
