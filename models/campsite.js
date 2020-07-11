@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 //This is making a shorthand to the mongoose.Schema function so we can refer to it as Schema:
 const Schema = mongoose.Schema;
 
-require('mongoose-currency').loadType(mongoose) //This will load the new currency type into mongoose so it's available to schemas
+require('mongoose-currency').loadType(mongoose); //This will load the new currency type into mongoose so it's available to schemas
+const Currency = mongoose.Types.Currency; //Shorthand (So we can use Currency instead of 'mongoose-currency')
 
 const commentSchema = new Schema({
   //FIRST ARGUMENT:
@@ -28,15 +29,32 @@ const commentSchema = new Schema({
 //Creating Schema:
 const campsiteSchema = new Schema({
   name: {
-    type: String,
-    required: true,
-    unique: true
+      type: String,
+      required: true,
+      unique: true
   },
   description: {
-    type: String,
-    required: true
+      type: String,
+      required: true
   },
-  comments: [commentSchema] //Addimg commentSchema as a sub document to the campsiteSchema
+  image: {
+      type: String,
+      required: true
+  },
+  elevation: {
+      type: Number,
+      required: true
+  },
+  cost: {
+      type: Currency,
+      required: true,
+      min: 0
+  },
+  featured: {
+      type: Boolean,
+      default: false
+  },
+  comments: [commentSchema]
 }, {
   timestamps: true //created at and updated at
 });
