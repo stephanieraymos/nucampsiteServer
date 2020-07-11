@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 require('mongoose-currency').loadType(mongoose); //This will load the new currency type into mongoose so it's available to schemas
-const Currency = mongoose.Types.Currency; //Shorthand (So we can use Currency instead of 'mongoose-currency')
+const Currency = mongoose.Types.Currency; //Shorthand for mongoose.Types.Currency
 
 const commentSchema = new Schema({
   //FIRST ARGUMENT:
