@@ -42,7 +42,7 @@ campsiteRouter.route('/')
 
 campsiteRouter.route('/:campsiteId')
 .get((req, res, next) => {
-    Campsite.findById(req.params.campsiteId)
+    Campsite.findById(req.params.campsiteId) //this id is getting parsed from the http request; from whatever the user on client side typed in as the id they want to access
     .then(campsite => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -56,8 +56,8 @@ campsiteRouter.route('/:campsiteId')
 })
 .put((req, res, next) => {
     Campsite.findByIdAndUpdate(req.params.campsiteId, {
-        $set: req.body
-    }, { new: true })
+        $set: req.body //update operator along with the data in the request body
+    }, { new: true }) //this is so we get back info about the updated document resulting from this method
     .then(campsite => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
