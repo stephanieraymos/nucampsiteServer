@@ -43,6 +43,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser('12345-67890-09876-54321'));
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
 
 function auth(req, res, next) {
   if (!req.signedCookies.user) { //signedCookies automatically parses a signed cookie from the request. Returns false if cookie is not properly signed. If incoming req doesn't include the signedCookies.user property or if signedCookie value is false --> client hasn't been authenticated.
