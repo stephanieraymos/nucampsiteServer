@@ -51,6 +51,9 @@ app.use(session({
   resave: false, //--> Helps keep the session marked as active so it doesn't get deleted. --Once a session has been created, updated and saved; it will continue to be resaved whenever a req is made for that session; even if that req didn't make any updates. 
   store: new FileStore() //Saves session to server's hard disk instead of just in running app memory. 
 }));
+//ROUTES 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
 function auth(req, res, next) {
   console.log(req.session);
@@ -93,8 +96,7 @@ app.use(auth);
 app.use(express.static(path.join(__dirname, 'public')));
 
 //ROUTERS
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
