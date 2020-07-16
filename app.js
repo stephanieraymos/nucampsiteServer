@@ -56,9 +56,8 @@ function auth(req, res, next) {
     //Grabbing the username and password out from the auth array:
     const user = auth[0];
     const pass = auth[1];
-    //Basic validation:
     if (user === 'admin' && pass === 'password') {
-      res.cookie('user', 'admin', {signed: true});
+      res.cookie('user', 'admin', { signed: true }); //Creating new cookie with name 'user'. Second argument is a value to be stored in the name property ('admin')
       return next(); // authorized
     } else {
       const err = new Error('You are not authenticated!');
@@ -66,33 +65,42 @@ function auth(req, res, next) {
       err.status = 401;
       return next(err);
     }
+  } else {
+    if (req.signedCookies.user === 'admin') {
+      return next();
+    } else {
+      const err = new Error('You are not authenticated!');
+      err.status = 401;
+      return next(err);
+    }
   }
+}
 
-  app.use(auth);
+app.use(auth);
 
-  app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-  //ROUTERS
-  app.use('/', indexRouter);
-  app.use('/users', usersRouter);
-  app.use('/campsites', campsiteRouter);
-  app.use('/promotions', promotionRouter);
-  app.use('/partners', partnerRouter);
+//ROUTERS
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/campsites', campsiteRouter);
+app.use('/promotions', promotionRouter);
+app.use('/partners', partnerRouter);
 
-  // catch 404 and forward to error handler
-  app.use(function (req, res, next) {
-    next(createError(404));
-  });
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
 
-  // error handler
-  app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
-  });
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
 
-  module.exports = app;
+module.exports = app;
