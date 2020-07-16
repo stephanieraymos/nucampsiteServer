@@ -6,6 +6,7 @@ var logger = require('morgan');
 const { MONGO_URI } = require('./config')
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
+//First class function. Require function is returning another function as it's return value. Then we're calling that returned function with the second parameter list of session.
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -42,12 +43,12 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-09876-54321'));
+// app.use(cookieParser('12345-67890-09876-54321'));
 app.use(session({
-  name: 'session-id',
+  name: 'session-id', //Can be named anything
   secret: '12345-67890-09876-54321',
-  saveUninitialized: false,
-  resave: false,
+  saveUninitialized: false, //When a new session is created; but then no updates are made to it: then at the end of the req it won't get saved because it would just be an empty session + no cookie would be sent to the client. --> Helps prevent having a bunch of empty session files and cookies being set up.
+  resave: false, //Once a session has been created, updated and saved; it will continue to be resaved whenever a req is made for that session; even if that req didn't make any updates. --> Helps keep the session marked as active so it doesn't get deleted. 
   store: new FileStore()
 }));
 
