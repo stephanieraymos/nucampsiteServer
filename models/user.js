@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+//Simple user schema
 const userSchema = new Schema({
   username: {
     type: String,
@@ -17,4 +18,6 @@ const userSchema = new Schema({
   }
 });
 
+//Creating and exporting the model in one line: 
 module.exports = mongoose.model('User', userSchema);
+//Collection will automatically be named "users"
