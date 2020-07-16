@@ -53,7 +53,9 @@ app.use(session({
 }));
 
 function auth(req, res, next) {
-  if (!req.signedCookies.user) { //signedCookies automatically parses a signed cookie from the request. Returns false if cookie is not properly signed. If incoming req doesn't include the signedCookies.user property or if signedCookie value is false --> client hasn't been authenticated.
+  console.log(req.session);
+
+  if (!req.session.user) { //If incoming req doesn't include the session.user property or if session value is false --> client hasn't been authenticated.
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       const err = new Error('You are not authenticated!');
@@ -67,7 +69,7 @@ function auth(req, res, next) {
     const user = auth[0];
     const pass = auth[1];
     if (user === 'admin' && pass === 'password') {
-      res.cookie('user', 'admin', { signed: true }); //Creating new cookie with name 'user'. Second argument is a value to be stored in the name property ('admin')
+      req.session.user = 'admin'; //Username = admin is saved to the session
       return next(); // authorized
     } else {
       const err = new Error('You are not authenticated!');
@@ -76,7 +78,7 @@ function auth(req, res, next) {
       return next(err);
     }
   } else {
-    if (req.signedCookies.user === 'admin') {
+    if (req.session.user === 'admin') {
       return next();
     } else {
       const err = new Error('You are not authenticated!');
