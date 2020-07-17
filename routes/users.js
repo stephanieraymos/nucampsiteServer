@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/user');
+const passport = require('passport');
 
 const router = express.Router();
 
@@ -9,70 +10,61 @@ router.get('/', function (req, res, next) {
 });
 
 //USER SIGNUP
-router.post('/signup', (req, res, next) => { //Allows new user to register on this website
-  User.findOne({ username: req.body.username }) //Checking if username is already taken
-    .then(user => {
-      if (user) { //A user doc was found with a matching name
-        const err = new Error(`Username ${req.body.username} already exists!`);
-        err.status = 403; //Forbidden
-        return next(err); //Passing to express to handle the error with the next function
+router.post('/signup', (req, res) => { //Allows new user to register on this website
+  User.register(
+    new User({ username: req.body.username }),
+    req.body.password,
+    err => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ err: err });
       } else {
-        User.create({
-          username: req.body.username,
-          password: req.body.password
-          //Leaving admin out so clients can't make themselves admins (default value is false and it is not required)
-        })
-          .then(user => {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({ status: 'Woo-hoo! Registration Successful!', user: user });
-          })
-          .catch(err => next(err));
+        passport.authenticate('local')(req, res, () => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({ success: true, status: 'Registration Successful!' });
+        });
       }
-    })
-    .catch(err => next(err)); //if findOne returns a rejected promise
+    }
+  );
 });
 
-//USER LOGIN
-router.post('/login', (req, res, next) => {
-  if (!req.session.user) { //If user is not already logged in (If there's not a current session for this user)
-    const authHeader = req.headers.authorization;
+router.post('/login', passport.authenticate('local'), (req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.json({ success: true, status: 'You are successfully logged in!' });
+});
 
-    if (!authHeader) {
-      const err = new Error('You are not authenticated!');
-      res.setHeader('WWW-Authenticate', 'Basic');
+
+//HANDLE USER LOGIN
+const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+const username = auth[0];
+const password = auth[1];
+
+User.findOne({ username: username }) //Checking inputted username against the user docs that we have in our database --> If found; can successfully authenticate the user and log them in
+  .then(user => {
+    if (!user) { //If inputted username doesn't exist
+      const err = new Error(`User ${username} does not exist!`);
       err.status = 401;
       return next(err);
+    } else if (user.password !== password) { //If inputted password doesn't match the docs in our database
+      const err = new Error('Your password is incorrect!');
+      err.status = 401;
+      return next(err);
+    } else if (user.username === username && user.password === password) { //Both username and password are correct: 
+      req.session.user = 'authenticated';
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('You are authenticated!')
     }
-
-    //HANDLE USER LOGIN
-    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const username = auth[0];
-    const password = auth[1];
-
-    User.findOne({ username: username }) //Checking inputted username against the user docs that we have in our database --> If found; can successfully authenticate the user and log them in
-      .then(user => {
-        if (!user) { //If inputted username doesn't exist
-          const err = new Error(`User ${username} does not exist!`);
-          err.status = 401;
-          return next(err);
-        } else if (user.password !== password) { //If inputted password doesn't match the docs in our database
-          const err = new Error('Your password is incorrect!');
-          err.status = 401;
-          return next(err);
-        } else if (user.username === username && user.password === password) { //Both username and password are correct: 
-          req.session.user = 'authenticated';
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('You are authenticated!')
-        }
-      })
-      .catch(err => next(err));
+  })
+  .catch(err => next(err));
   } else {//Client is already logged in 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('You are already authenticated!');
-  }
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('You are already authenticated!');
+}
 });
 
 //USER LOGOUT
