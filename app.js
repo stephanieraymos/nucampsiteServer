@@ -7,6 +7,9 @@ const { MONGO_URI } = require('./config')
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 //First class function. Require function is returning another function as it's return value. Then we're calling that returned function with the second parameter list of session.
+const passport = require('passport');
+const authenticate = require('./authenticate');
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -52,25 +55,22 @@ app.use(session({
   store: new FileStore() //Saves session to server's hard disk instead of just in running app memory. 
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 //ROUTES 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 function auth(req, res, next) {
-  console.log(req.session);
+  console.log(req.user);
 
-  if (!req.session.user) { //If incoming req doesn't include the session.user property or if session value is false --> client hasn't been authenticated.
+  if (!req.user) { //If incoming req doesn't include the session.user property or if session value is false --> client hasn't been authenticated.
     const err = new Error('You are not authenticated!');
     err.status = 401;
     return next(err);
   } else {
-    if (req.session.user === 'authenticated') {
-      return next();
-    } else {
-      const err = new Error('You are not authenticated!');
-      err.status = 401;
-      return next(err);
-    }
+    return next();
   }
 }
 
