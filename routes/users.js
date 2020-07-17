@@ -12,13 +12,13 @@ router.get('/', function (req, res, next) {
 //USER SIGNUP
 router.post('/signup', (req, res) => { //Allows new user to register on this website
   User.register(
-    new User({ username: req.body.username }),
-    req.body.password,
-    err => {
+    new User({ username: req.body.username }), //New user with name provided by client
+    req.body.password, //password provided by client
+    err => { //callback method receiving an error if there was one. Null if no error.
       if (err) {
         res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({ err: err });
+        res.setHeader('Content-Type', 'application/json'); //Letting client know to expect a json response
+        res.json({ err: err }); //provides info about error
       } else {
         passport.authenticate('local')(req, res, () => {
           res.statusCode = 200;
