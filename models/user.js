@@ -1,22 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const passportLocalMongoose = require('passport-local-mongoose');
 
 //Simple user schema
 const userSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
   admin: {
-    type: Boolean,
-    default: false
+      type: Boolean,
+      default: false
   }
 });
+
+userSchema.plugin(passportLocalMongoose); //This plugin will handle adding the username and password fields to the doc + salting and hashing
 
 //Creating and exporting the model in one line: 
 module.exports = mongoose.model('User', userSchema);
