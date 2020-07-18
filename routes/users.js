@@ -7,7 +7,13 @@ const router = express.Router();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
+  if (req.user.admin) {
+    return user
+  } else {
+    err = new Error("You are not authorized to get this information!");
+    err.status = 403;
+    return next(err); //Passing off error to express error handling mechanism 
+  }
 });
 
 //USER SIGNUP
