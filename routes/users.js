@@ -6,15 +6,15 @@ const authenticate = require('../authenticate');
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-  if (req.user.admin) {
-    return user
-  } else {
-    err = new Error("You are not authorized to get this information!");
-    err.status = 403;
-    return next(err); //Passing off error to express error handling mechanism 
-  }
-});
+router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    User.find()
+    .then(users => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(users);
+    }) 
+    .catch(err => next(err))
+  })
 
 //USER SIGNUP
 router.post('/signup', (req, res) => { //Allows new user to register on this website 
