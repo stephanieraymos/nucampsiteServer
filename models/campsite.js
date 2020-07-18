@@ -18,8 +18,8 @@ const commentSchema = new Schema({
     required: true
   },
   author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    type: mongoose.Schema.Types.ObjectId, //reference to a user doc through the user docs object id
+    ref: 'User' //name of model for that doc
 }
 }, {
     //SECOND ARGUMENT:
