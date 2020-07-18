@@ -10,7 +10,7 @@ campsiteRouter.use(bodyParser.json());
 campsiteRouter.route('/')
     .get((req, res, next) => {
         Campsite.find()
-            .populate('comments.author')
+            .populate('comments.author') //telling app: when campsite docs are retrieved --> populate the author field of the comments subdoc by finding the user doc that matches the object id stored there.
             .then(campsites => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
