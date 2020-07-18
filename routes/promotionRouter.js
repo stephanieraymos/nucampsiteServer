@@ -13,11 +13,11 @@ promotionRouter.route('/:promotionId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.promotionId}`);
     })
-    .put(authenticate.verifyUser, (req, res) => {
+    .put(authenticate.verifyAdmin, (req, res) => {
         res.write(`Updating the campsite: ${req.params.promotionId}\n`);
         res.end(`Will update the campsite: ${req.body.name} with description: ${req.body.description}`);
     })
-    .delete(authenticate.verifyUser, (req, res) => {
+    .delete(authenticate.verifyAdmin, (req, res) => {
         res.end(`Deleting promotion: ${req.params.promotionId}`);
     });
 

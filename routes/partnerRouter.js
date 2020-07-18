@@ -13,11 +13,11 @@ partnerRouter.route('/:partnerId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /partners/${req.params.partnerId}`);
     })
-    .put(authenticate.verifyUser, (req, res) => {
+    .put(authenticate.verifyAdmin, (req, res) => {
         res.write(`Updating the partner: ${req.params.partnerId}\n`);
         res.end(`Will update the partner: ${req.body.name} with description: ${req.body.description}`);
     })
-    .delete(authenticate.verifyUser, (req, res) => {
+    .delete(authenticate.verifyAdmin, (req, res) => {
         res.end(`Deleting partner: ${req.params.partnerId}`);
     });
 
