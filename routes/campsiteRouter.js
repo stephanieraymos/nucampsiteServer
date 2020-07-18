@@ -8,14 +8,15 @@ const campsiteRouter = express.Router();
 campsiteRouter.use(bodyParser.json());
 
 campsiteRouter.route('/')
-    .get((req, res, next) => { //next is for error handling
+    .get((req, res, next) => {
         Campsite.find()
+            .populate('comments.author')
             .then(campsites => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(campsites); //Sending json data to the client. Automatically closes the response stream afterward; so no res.end is needed
+                res.json(campsites);
             })
-            .catch(err => next(err)); //next(err) is passing off the error to the overall error handler so express can handle it.
+            .catch(err => next(err));
     })
     .post(authenticate.verifyUser, (req, res, next) => {
         Campsite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
@@ -44,6 +45,7 @@ campsiteRouter.route('/')
 campsiteRouter.route('/:campsiteId')
     .get((req, res, next) => {
         Campsite.findById(req.params.campsiteId) //this id is getting parsed from the http request; from whatever the user on client side typed in as the id they want to access
+            .populate('comments.author')
             .then(campsite => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -79,6 +81,7 @@ campsiteRouter.route('/:campsiteId')
 campsiteRouter.route('/:campsiteId/comments')
     .get((req, res, next) => {
         Campsite.findById(req.params.campsiteId)//client is looking for a single campsite's comments; not all
+            .populate('comments.author')
             .then(campsite => {
                 if (campsite) { //making sure non-null/truthy value was returned for the campsite document
                     res.statusCode = 200;
@@ -96,6 +99,7 @@ campsiteRouter.route('/:campsiteId/comments')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite) { //making sure non-null/truthy value was returned for the campsite document
+                    req.body.author = req.user._id;
                     campsite.comments.push(req.body); //pushing new comment into the comments array
                     //This has only saved the comments array that's in the applications memory; not the comments sub document in the mongodb database
                     campsite.save() //to save this change to the mongodb database (lowercase because it's not static: it's being performed on this particular campsite instance; the document itself)
@@ -143,6 +147,7 @@ campsiteRouter.route('/:campsiteId/comments')
 campsiteRouter.route('/:campsiteId/comments/:commentId')
     .get((req, res, next) => {
         Campsite.findById(req.params.campsiteId)
+        .populate('comments.author')
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) { //making sure non-null/truthy value was returned for the campsite document & for the comment
                     res.statusCode = 200;
