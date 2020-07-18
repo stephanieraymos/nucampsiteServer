@@ -1,14 +1,10 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const { MONGO_URI } = require('./config')
-const session = require('express-session');
-const FileStore = require('session-file-store')(session);
-//First class function. Require function is returning another function as it's return value. Then we're calling that returned function with the second parameter list of session.
 const passport = require('passport');
-const authenticate = require('./authenticate');
+const config = require('./config');
 
 
 var indexRouter = require('./routes/index');
@@ -24,7 +20,8 @@ mongoose.connect(MONGO_URI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('MongoDB connected!'))
   .catch(err => console.log(err));
 
-const url = 'mongodb://localhost:27017/nucampsite';
+const url = config.mongoUrl;
+
 const connect = mongoose.connect(url, {
   useCreateIndex: true,
   useFindAndModify: false,
