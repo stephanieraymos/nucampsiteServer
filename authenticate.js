@@ -37,4 +37,4 @@ exports.jwtPassport = passport.use( //takes an instance of the jwt strategy as a
   )
 );
 
-exports.verifyUser = passport.authenticate('jwt', {session: false});
+exports.verifyUser = passport.authenticate('jwt', {session: false}); //used to verify that incoming req is from authenticated user. session: false (not using sessions)
