@@ -13,11 +13,11 @@ promotionRouter.route('/:promotionId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.promotionId}`);
     })
-    .put(authenticate.verifyAdmin, (req, res) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.write(`Updating the campsite: ${req.params.promotionId}\n`);
         res.end(`Will update the campsite: ${req.body.name} with description: ${req.body.description}`);
     })
-    .delete(authenticate.verifyAdmin, (req, res) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.end(`Deleting promotion: ${req.params.promotionId}`);
     });
 
@@ -26,14 +26,14 @@ promotionRouter.route('/:promotionId')
     .get((req, res) => {
         res.end('Will send all the promotions to you');
     })
-    .post(authenticate.verifyAdmin, (req, res) => {
+    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.end(`Will add the promotion: ${req.body.name} with description: ${req.body.description}`);
     })
     .put(authenticate.verifyUser, (req, res) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /promotions');
     })
-    .delete(authenticate.verifyAdmin, (req, res) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.end('Deleting all promotions');
     });
 

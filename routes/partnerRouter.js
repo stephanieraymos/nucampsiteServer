@@ -13,11 +13,11 @@ partnerRouter.route('/:partnerId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /partners/${req.params.partnerId}`);
     })
-    .put(authenticate.verifyAdmin, (req, res) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.write(`Updating the partner: ${req.params.partnerId}\n`);
         res.end(`Will update the partner: ${req.body.name} with description: ${req.body.description}`);
     })
-    .delete(authenticate.verifyAdmin, (req, res) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.end(`Deleting partner: ${req.params.partnerId}`);
     });
 
@@ -25,10 +25,10 @@ partnerRouter.route('/:partnerId')
     .get((req, res) => {
         res.end('Will send all the partners to you');
     })
-    .post(authenticate.verifyAdmin, (req, res) => {
+    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.end(`Will add the campsite: ${req.body.name} with description: ${req.body.description}`);
     })
-    .put(authenticate.verifyAdmin, (req, res) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /partners');
     })

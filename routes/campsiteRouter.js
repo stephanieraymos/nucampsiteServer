@@ -17,7 +17,7 @@ campsiteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .post(authenticate.verifyAdmin, (req, res, next) => {
+    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
             .then(campsite => {
                 console.log('Campsite Created ', campsite); //Second argument; campsite: will log info about the campsite to the console.
@@ -56,7 +56,7 @@ campsiteRouter.route('/:campsiteId')
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`);
     })
-    .put(authenticate.verifyAdmin, (req, res) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         Campsite.findByIdAndUpdate(req.params.campsiteId, {
             $set: req.body //update operator along with the data in the request body
         }, { new: true }) //this is so we get back info about the updated document resulting from this method
@@ -67,7 +67,7 @@ campsiteRouter.route('/:campsiteId')
             })
             .catch(err => next(err));
     })
-    .delete(authenticate.verifyAdmin, (req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.findByIdAndDelete(req.params.campsiteId)
             .then(response => {
                 res.statusCode = 200;
@@ -120,7 +120,7 @@ campsiteRouter.route('/:campsiteId/comments')
         res.statusCode = 403;
         res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`); //echoing back to the client: the path that they tried to reach
     })
-    .delete(authenticate.verifyAdmin, (req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite) { //making sure non-null/truthy value was returned for the campsite document
