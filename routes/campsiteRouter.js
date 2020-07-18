@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Campsite = require('../models/campsite');
 const authenticate = require('../authenticate');
-
 const campsiteRouter = express.Router();
 
 campsiteRouter.use(bodyParser.json());
@@ -18,7 +17,7 @@ campsiteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .post(authenticate.verifyUser, (req, res, next) => {
+    .post(authenticate.verifyAdmin, (req, res, next) => {
         Campsite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
             .then(campsite => {
                 console.log('Campsite Created ', campsite); //Second argument; campsite: will log info about the campsite to the console.
@@ -32,7 +31,7 @@ campsiteRouter.route('/')
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete(authenticate.verifyUser, (req, res, next) => {
+    .delete(authenticate.verifyAdmin, (req, res, next) => {
         Campsite.deleteMany() //Every document in campsite collection will be deleted
             .then(response => {
                 res.statusCode = 200;

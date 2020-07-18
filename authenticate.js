@@ -11,8 +11,8 @@ exports.local = passport.use(new LocalStrategy(User.authenticate())); //Verifyin
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-exports.getToken = function(user) { //received object that contains id for user doc
-  return jwt.sign(user, config.secretKey, {expiresIn: 3600}); //returning token. Sign method takes user object passed in as first arg, second arg is the secret key (in config.js.) 1 hr expiration.
+exports.getToken = function (user) { //received object that contains id for user doc
+    return jwt.sign(user, config.secretKey, { expiresIn: 3600 }); //returning token. Sign method takes user object passed in as first arg, second arg is the secret key (in config.js.) 1 hr expiration.
 };
 
 const opts = {}; //contains options for jwt strategy, initialized as empty object.
@@ -20,21 +20,31 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken(); //Specifies how 
 opts.secretOrKey = config.secretKey; //Supplies jwt strategy with key for token.
 
 exports.jwtPassport = passport.use( //takes an instance of the jwt strategy as an argument
-  new JwtStrategy( //constructor
-      opts,
-      (jwt_payload, done) => { //(options, verify) 
-          console.log('JWT payload:', jwt_payload);
-          User.findOne({_id: jwt_payload._id}, (err, user) => { //checking for user doc with id that matches the token
-              if (err) {
-                  return done(err, false); //no user was found
-              } else if (user) { //was user found?
-                  return done(null, user); //no error, user doc as second arg. --> done is loading info from doc to the req object
-              } else {
-                  return done(null, false); //no error, but no user doc was found that matched what was in token
-              }
-          });
-      }
-  )
+    new JwtStrategy( //constructor
+        opts,
+        (jwt_payload, done) => { //(options, verify) 
+            console.log('JWT payload:', jwt_payload);
+            User.findOne({ _id: jwt_payload._id }, (err, user) => { //checking for user doc with id that matches the token
+                if (err) {
+                    return done(err, false); //no user was found
+                } else if (user) { //was user found?
+                    return done(null, user); //no error, user doc as second arg. --> done is loading info from doc to the req object
+                } else {
+                    return done(null, false); //no error, but no user doc was found that matched what was in token
+                }
+            });
+        }
+    )
 );
 
-exports.verifyUser = passport.authenticate('jwt', {session: false}); //used to verify that incoming req is from authenticated user. session: false (not using sessions) --> Shortcut to use in other modules when authenicating with jwt strategy 
+exports.verifyUser = passport.authenticate('jwt', { session: false }); //used to verify that incoming req is from authenticated user. session: false (not using sessions) --> Shortcut to use in other modules when authenicating with jwt strategy 
+// exports.verifyAdmin = passport.authenticate('jwt', { session: false });
+exports.verifyAdmin = (req, res, next) => {
+    if (req.user.admin) {
+        return (next);
+    } else {
+        err = new Error("You are not authorized to perform this operation!");
+        err.status = 403;
+        return next(err); //Passing off error to express error handling mechanism 
+    }
+}
