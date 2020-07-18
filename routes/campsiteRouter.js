@@ -99,7 +99,7 @@ campsiteRouter.route('/:campsiteId/comments')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite) { //making sure non-null/truthy value was returned for the campsite document
-                    req.body.author = req.user._id;
+                    req.body.author = req.user._id; //adding id of current user to the req body as "author" before pushing to comments array --> when comment is saved: it will have the id of the user in the author field.
                     campsite.comments.push(req.body); //pushing new comment into the comments array
                     //This has only saved the comments array that's in the applications memory; not the comments sub document in the mongodb database
                     campsite.save() //to save this change to the mongodb database (lowercase because it's not static: it's being performed on this particular campsite instance; the document itself)
