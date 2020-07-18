@@ -172,7 +172,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) { //making sure non-null/truthy value was returned for the campsite document & for the comment
-                    if (campsite.comments.id(req.params.commentId).author._id === req.user._id) {
+                    if (campsite.comments.id(req.params.commentId).author._id.equals(req.user._id)) {
                         //use .equals(req.user._id) instead of ===
                         if (req.body.rating) { //if a new comment rating has been passed in
                             campsite.comments.id(req.params.commentId).rating = req.body.rating; //then we'll set the rating for the specified comment with that new rating
@@ -181,12 +181,16 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                             campsite.comments.id(req.params.commentId).text = req.body.text; //then we'll set the text for the specified comment with that new text
                         }
                         campsite.save() //save updates to mongodb server
-                            .then(campsite => { //if save operation succeeds
-                                res.statusCode = 200;
-                                res.setHeader('Content-Type', 'application/json');
-                                res.json(campsite);
-                            })
-                            .catch(err => next(err));
+                        .then(campsite => { //if save operation succeeds
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json(campsite);
+                        })
+                        .catch(err => next(err));
+                    } else {
+                            err = new Error(``);
+                            err.status = 404;
+                            return next(err); }
                     } else if (!campsite) {
                         err = new Error(`Campsite ${req.params.campsiteId} not found`);
                         err.status = 404;
@@ -196,11 +200,6 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                         err.status = 404;
                         return next(err);
                     }
-                } else {
-                    err = new Error(`Comment ${req.params.commentId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
             })
             .catch(err => next(err));
     })
