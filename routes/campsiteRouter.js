@@ -3,10 +3,11 @@ const bodyParser = require('body-parser');
 const Campsite = require('../models/campsite');
 const authenticate = require('../authenticate');
 const campsiteRouter = express.Router();
-// const user = require('../models/user')
+const cors = require('./cors'); //CORS module created in the routes folder
 campsiteRouter.use(bodyParser.json());
 
 campsiteRouter.route('/')
+    .options() //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
     .get((req, res, next) => {
         Campsite.find()
             .populate('comments.author') //telling app: when campsite docs are retrieved --> populate the author field of the comments subdoc by finding the user doc that matches the object id stored there.
@@ -181,25 +182,26 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                             campsite.comments.id(req.params.commentId).text = req.body.text; //then we'll set the text for the specified comment with that new text
                         }
                         campsite.save() //save updates to mongodb server
-                        .then(campsite => { //if save operation succeeds
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(campsite);
-                        })
-                        .catch(err => next(err));
+                            .then(campsite => { //if save operation succeeds
+                                res.statusCode = 200;
+                                res.setHeader('Content-Type', 'application/json');
+                                res.json(campsite);
+                            })
+                            .catch(err => next(err));
                     } else {
-                            err = new Error(``);
-                            err.status = 404;
-                            return next(err); }
-                    } else if (!campsite) {
-                        err = new Error(`Campsite ${req.params.campsiteId} not found`);
-                        err.status = 404;
-                        return next(err);
-                    } else {
-                        err = new Error(`Comment ${req.params.commentId} not found`);
+                        err = new Error(``);
                         err.status = 404;
                         return next(err);
                     }
+                } else if (!campsite) {
+                    err = new Error(`Campsite ${req.params.campsiteId} not found`);
+                    err.status = 404;
+                    return next(err);
+                } else {
+                    err = new Error(`Comment ${req.params.commentId} not found`);
+                    err.status = 404;
+                    return next(err);
+                }
             })
             .catch(err => next(err));
     })

@@ -13,7 +13,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, ne
       res.setHeader('Content-Type', 'application/json');
       res.json(users);
     }) 
-    .catch(err => next(err))
+    .catch(err => next(err)
   })
 
 //USER SIGNUP
