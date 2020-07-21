@@ -7,7 +7,7 @@ const cors = require('./cors'); //CORS module created in the routes folder
 campsiteRouter.use(bodyParser.json());
 
 campsiteRouter.route('/')
-    .options() //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
+    .options(cors.corsWithOptions, (req, res) => res.sendStatus(200)) //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
     .get((req, res, next) => {
         Campsite.find()
             .populate('comments.author') //telling app: when campsite docs are retrieved --> populate the author field of the comments subdoc by finding the user doc that matches the object id stored there.
