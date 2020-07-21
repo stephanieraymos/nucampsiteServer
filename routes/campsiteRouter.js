@@ -8,7 +8,7 @@ campsiteRouter.use(bodyParser.json());
 
 campsiteRouter.route('/')
     .options(cors.corsWithOptions, (req, res) => res.sendStatus(200)) //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
-    .get((req, res, next) => {
+    .get(cors.cors, (req, res, next) => {
         Campsite.find()
             .populate('comments.author') //telling app: when campsite docs are retrieved --> populate the author field of the comments subdoc by finding the user doc that matches the object id stored there.
             .then(campsites => {
@@ -18,7 +18,7 @@ campsiteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
             .then(campsite => {
                 console.log('Campsite Created ', campsite); //Second argument; campsite: will log info about the campsite to the console.
@@ -28,11 +28,11 @@ campsiteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .put(authenticate.verifyUser, (req, res) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete(authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.deleteMany() //Every document in campsite collection will be deleted
             .then(response => {
                 res.statusCode = 200;
