@@ -32,7 +32,7 @@ campsiteRouter.route('/')
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete(cors.corsWithOptions, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.deleteMany() //Every document in campsite collection will be deleted
             .then(response => {
                 res.statusCode = 200;
@@ -208,7 +208,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
             })
             .catch(err => next(err));
     })
-    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) {
