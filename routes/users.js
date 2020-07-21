@@ -2,22 +2,23 @@ const express = require('express');
 const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    User.find()
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  User.find()
     .then(users => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.json(users);
-    }) 
+    })
     .catch(err => next(err)
   })
 
 //USER SIGNUP
-router.post('/signup', (req, res) => { //Allows new user to register on this website 
+router.post('/signup', cors.corsWithOptions, (req, res) => { //Allows new user to register on this website 
   User.register(new User({ username: req.body.username }), //New user with name provided by client
     req.body.password, (err, user) => { //password provided by client
       if (err) {
@@ -48,7 +49,7 @@ router.post('/signup', (req, res) => { //Allows new user to register on this web
     });
 });
 
-router.post('/login', passport.authenticate('local'), (req, res) => { //It's possible to insert multiple middleware functions in a routing method.
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => { //It's possible to insert multiple middleware functions in a routing method.
   const token = authenticate.getToken({ _id: req.user._id });
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
@@ -57,7 +58,7 @@ router.post('/login', passport.authenticate('local'), (req, res) => { //It's pos
 
 
 //USER LOGOUT
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
   if (req.session) {
     req.session.destroy(); //destroying session: deleting session file on server side
     res.clearCookie('session-id');//Clearing cookie stored on client
