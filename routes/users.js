@@ -14,8 +14,8 @@ router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.veri
       res.setHeader('Content-Type', 'application/json');
       res.json(users);
     })
-    .catch(err => next(err)
-  })
+    .catch(err => next(err))
+  });
 
 //USER SIGNUP
 router.post('/signup', cors.corsWithOptions, (req, res) => { //Allows new user to register on this website 
