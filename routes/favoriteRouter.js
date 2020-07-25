@@ -75,10 +75,36 @@ favoriteRouter.route('/:campsiteId')
   .get(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`GET operation not supported on /favorites/${req.params.campsiteId}`);
-})
+  })
   .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    res.statusCode = 403;
-    res.end(`POST operation not supported on /favorites/${req.params.campsiteId}`);
+    Favorite.findOne({ user: req.user._id }) //finding favorite
+      .then(favorite => {
+        if (favorite) {
+          if (!favorite.campsites.includes(req.params.campsiteId)) {
+            favorite.campsites.push(req.params.campsiteId);
+            favorite.save()
+              .then(favorite => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(favorite);
+              })
+              .catch(err => next(err));
+          } else {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('You already have this campsite added to favorites.');
+          }
+        } else {
+          Favorite.create({ user: req.user._id, campsites: [req.params.campsiteId] })
+            .then(favorite => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.json(favorite);
+            })
+            .catch(err => next(err));
+        }
+      })
+      .catch(err => next(err));
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     Favorite.findByIdAndUpdate(req.params.campsiteId, {
