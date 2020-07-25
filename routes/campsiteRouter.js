@@ -176,7 +176,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) { //making sure non-null/truthy value was returned for the campsite document & for the comment
-                    if (campsite.comments.id(req.params.commentId).author._id.equals(req.user._id)) {
+                    if ((campsite.comments.id(req.params.commentId).author._id).equals(req.user._id)) { //making sure the user is the author of this comment
                         //use .equals(req.user._id) instead of ===
                         if (req.body.rating) { //if a new comment rating has been passed in
                             campsite.comments.id(req.params.commentId).rating = req.body.rating; //then we'll set the rating for the specified comment with that new rating
