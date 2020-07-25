@@ -51,11 +51,21 @@ favoriteRouter.route('/')
     res.end('PUT operation not supported on /favprites');
   })
   .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Favorite.deleteMany() //Every Favorite will be deleted
-      .then(response => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(response);
+    Favorite.findOne({ user: req.user._id }) //finding each favorite
+      .then(favorite => {
+        if (favorite) { //if there's a favorite, remove it
+          favorite.remove()
+            .then(favorite => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.json(favorite);
+            })
+            .catch(err => next(err));
+        } else {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(favorite);
+        }
       })
       .catch(err => next(err));
   });
