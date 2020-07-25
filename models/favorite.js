@@ -5,12 +5,12 @@ const Schema = mongoose.Schema;
 //Creating Schema:
 const favoriteSchema = new Schema({
   user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: user,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
   campsites: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: campsites
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Campsite'
   }]
 }, {
   timestamps: true //created at and updated at
@@ -21,6 +21,6 @@ const favoriteSchema = new Schema({
 //Second argument: Schema we want to use for this collection) 
 //Returns a constructor function (A de-sugared class)
 //Used to instantiate documents for mondoDB
-const Favorite = mongoose.model('Campsite', favoriteSchema);
+const Favorite = mongoose.model('Favorite', favoriteSchema);
 
 module.exports = Favorite;
