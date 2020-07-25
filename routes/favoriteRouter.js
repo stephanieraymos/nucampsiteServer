@@ -9,7 +9,7 @@ favoriteRouter.use(bodyParser.json());
 favoriteRouter.route('/')
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200)) //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
   .get(cors.cors, (req, res, next) => {
-    Favorite.find({ user: req.user._id })
+    Favorite.find({ user: req.user._id }) //finding favorite by user id
       .populate('user')
       .populate('campsites')
       .then(favorite => {
@@ -20,14 +20,31 @@ favoriteRouter.route('/')
       .catch(err => next(err));
   })
   .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Favorite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
+    Favorite.findOne({ user: req.user._id }) //finding each favorite
       .then(favorite => {
-        console.log('Campsite has been added to favorites', campsite); //Second argument; campsite: will log info about the campsite to the console.
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(favorite); //Sends info about posted document to the client. (No res.end needed)
-      })
-      .catch(err => next(err));
+        if (favorite) {
+          req.body.forEach(favorite => {
+            if (!favorite.campsites.includes(favorite._id)) { //if no favorite id --> push favorite id
+              favorite.campsites.push(favorite._id);
+            }
+          });
+          favorite.save()
+            .then(favorite => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.json(favorite);
+            })
+            .catch(err => next(err));
+        } else {
+          Favorite.create({ user: req.user._id, campsites: req.body })
+            .then(favorite => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.json(favorite);
+            })
+            .catch(err => next(err));
+        }
+      }).catch(err => next(err));
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
