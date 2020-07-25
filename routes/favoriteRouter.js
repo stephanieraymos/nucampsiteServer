@@ -107,15 +107,8 @@ favoriteRouter.route('/:campsiteId')
       .catch(err => next(err));
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
-    Favorite.findByIdAndUpdate(req.params.campsiteId, {
-      $set: req.body //update operator along with the data in the request body
-    }, { new: true }) //this is so we get back info about the updated document resulting from this method
-      .then(favorite => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(favorite);
-      })
-      .catch(err => next(err));
+    res.statusCode = 403;
+    res.end(`PUT operation not supported on /favorites/${req.params.campsiteId}`);
   })
   .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Favorite.findByIdAndDelete(req.params.campsiteId)
