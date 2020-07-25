@@ -72,16 +72,10 @@ favoriteRouter.route('/')
 
 favoriteRouter.route('/:campsiteId')
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200)) //Handling preflight req. --> Any time a client needs to preflight a req: it will do so by sending a req with the http options method. Client will wait for server to respond with info on what kind of req it will accept to figure out whether or not it can send it's actual req.
-  .get(cors.cors, (req, res, next) => {
-    Campsite.findById(req.params.campsiteId) //this id is getting parsed from the http request; from whatever the user on client side typed in as the id they want to access
-      .populate('user.campsites')
-      .then(favorite => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(favorite);
-      })
-      .catch(err => next(err));
-  })
+  .get(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    res.statusCode = 403;
+    res.end(`GET operation not supported on /favorites/${req.params.campsiteId}`);
+})
   .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /favorites/${req.params.campsiteId}`);
