@@ -15,12 +15,12 @@ const storage = multer.diskStorage({
 
 const imageFileFilter = (req, file, cb) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) { //reg ex expression to look for extentions --> Will check to see if the file extention is NOT one of these
-    return cb(new Error('You can upload only image files!'), false); //false tells multer to reject this file upload
+    return cb(new Error('You can upload only image files! JPG, JPEG, PNG or GIF.'), false); //false tells multer to reject this file upload
   }
   cb(null, true); //no error --> multer accepts the file (true)
 };
 
-const upload = multer({ storage: storage, fileFilter: imageFileFilter }); // Now the multer module is configured to enable image file uplaods
+const upload = multer({ storage: storage, fileFilter: imageFileFilter }); // Now the multer module is configured to enable image file uploads. Where to store the images and filtering out anything that isn't an image file.
 
 const uploadRouter = express.Router();
 
