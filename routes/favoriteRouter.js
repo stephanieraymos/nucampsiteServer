@@ -18,7 +18,7 @@ favoriteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Favorite.create(req.body) //Mongoose will let us know if we're missing any data in the request body
             .then(campsite => {
                 console.log('Campsite has been added to favorites', campsite); //Second argument; campsite: will log info about the campsite to the console.
@@ -28,11 +28,11 @@ favoriteRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Campsite.deleteMany() //Every document in campsite collection will be deleted
             .then(response => {
                 res.statusCode = 200;
@@ -54,11 +54,11 @@ favoriteRouter.route('/:campsiteId')
             })
             .catch(err => next(err));
     })
-    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`);
     })
-    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
         Favorite.findByIdAndUpdate(req.params.campsiteId, {
             $set: req.body //update operator along with the data in the request body
         }, { new: true }) //this is so we get back info about the updated document resulting from this method
@@ -69,7 +69,7 @@ favoriteRouter.route('/:campsiteId')
             })
             .catch(err => next(err));
     })
-    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Favorite.findByIdAndDelete(req.params.campsiteId)
             .then(response => {
                 res.statusCode = 200;
